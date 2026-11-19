@@ -29,7 +29,7 @@
         },
         "endTime": {
           "description": "UTC epoch time in milliseconds",
-          "type": "number"
+          "type": "integer"
         },
         "health": {
           "description": "Cisco Catalyst Center health catagory: POOR, FAIR, or GOOD (case insensitive)",
@@ -52,7 +52,7 @@
         },
         "startTime": {
           "description": "UTC epoch time in milliseconds",
-          "type": "number"
+          "type": "integer"
         }
       },
       "required": [],

@@ -39,6 +39,19 @@ GET /v1/health
 GET /v1/readiness
 ```
 
+## Tool call behavior
+
+Tool calls report Catalyst Center failures as MCP errors. A successful empty
+response remains a successful tool call. Controller response bodies are not
+included in tool errors.
+
+Generated enumerated arguments are advertised in the MCP schema and validated
+before making a request. Integer fields accept JSON integers. Numeric query
+arguments retain integer values without a decimal suffix and preserve
+fractional values. A numeric query window with both `startTime` and `endTime`
+requires `startTime <= endTime`. Device Health takes integer UTC epoch
+milliseconds for both time parameters.
+
 ## Bundling Tools
 
 Tool bundles are exported by the `ci-tools` Jenkins helper from checked-out
