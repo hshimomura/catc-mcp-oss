@@ -52,6 +52,17 @@ fractional values. A numeric query window with both `startTime` and `endTime`
 requires `startTime <= endTime`. Device Health takes integer UTC epoch
 milliseconds for both time parameters.
 
+### Assurance issue pagination
+
+Use `api_readIssues` to read Assurance issues on Catalyst Center 3.2.3.
+The page size `limit` accepts integers from 1 to 25. If omitted, the controller
+defaults to 10. Start at `offset=1` and keep the same filters and page size on
+subsequent requests. With `limit=25`, use offsets 1, 26, 51, and so on until
+the controller returns fewer than 25 records.
+
+These limits follow the [Cisco OpenAPI specification referenced by the
+3.2.3 SDK](https://github.com/cisco-en-programmability/catalyst-center-api-specs/blob/9183caa78eb654f95892b54d9aafc2fd73e62d0e/Assurance/CE_Cat_Center_Org-IssuesList-3.2.2-resolved.yaml#L160-L176).
+
 ## Bundling Tools
 
 Tool bundles are exported by the `ci-tools` Jenkins helper from checked-out

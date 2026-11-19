@@ -1,0 +1,48 @@
+{
+  "function": {
+    "name": "api_readIssues",
+    "description": "List Assurance issues within an optional time window. Keep the filters unchanged when requesting subsequent pages.",
+    "additionalMetadata": {
+      "method": "GET",
+      "uri": "/dna/data/api/v1/assuranceIssues",
+      "version": "3.2.3",
+      "parameterLocation": {
+        "startTime": "query",
+        "endTime": "query",
+        "limit": "query",
+        "offset": "query",
+        "status": "query"
+      }
+    },
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "startTime": {
+          "type": "integer",
+          "description": "Inclusive start time in UTC epoch milliseconds."
+        },
+        "endTime": {
+          "type": "integer",
+          "description": "Inclusive end time in UTC epoch milliseconds."
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 25,
+          "description": "Page size. The controller defaults to 10 when omitted."
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "One-based position of the first record. The controller defaults to 1."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "resolved", "ignored"],
+          "description": "Optional filter for one issue status."
+        }
+      },
+      "required": []
+    }
+  }
+}
