@@ -2,11 +2,30 @@
 
 Standalone MCP server for Cisco Catalyst Center auto-generated tools.
 
-This repository intentionally bundles only the generated DNAC tools from
-`dialographer-kb/Agent_DNAC/autogen/promoted`. It does not import PyFE at runtime,
-does not mount custom tools, and does not delegate generated tool execution to the
-Catalyst Center adapter. Tool calls are translated directly into Catalyst Center REST
-requests by this server.
+## About this fork
+
+This fork starts from [Cisco's public Catalyst Center MCP release/3.2.3](https://github.com/cisco-en-programmability/catc-mcp-oss/tree/release/3.2.3).
+I created it to improve Assurance queries and make tool responses easier for
+MCP clients to interpret. I plan to continue developing and maintaining the
+fork here, with regression tests for changes to tool inputs, HTTP requests,
+and MCP responses.
+
+- **Input validation.** Preserves integer epoch timestamps in HTTP queries
+  and rejects invalid enumerated values and reversed time windows before
+  sending requests.
+- **Error handling.** Reports controller failures as MCP tool errors so
+  clients can distinguish them from successful empty results.
+- **Assurance issues.** Adds [paginated issue retrieval](#assurance-issue-pagination).
+- **Device Health.** Supports an [optional history limit](#device-health-time-window)
+  that can be set to match the controller.
+
+Regression tests use synthetic controller responses. Check your controller
+release before relying on a specific API or query limit.
+
+The server bundles generated DNAC tools from
+`dialographer-kb/Agent_DNAC/autogen/promoted` and includes the Assurance issue
+tool described above. Tool calls are translated directly into Catalyst Center
+REST requests by this server.
 
 ## Runtime
 
