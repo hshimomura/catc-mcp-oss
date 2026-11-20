@@ -19,6 +19,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+import time
 from collections.abc import Awaitable, Callable
 from inspect import Parameter, Signature
 from typing import Annotated, Literal, cast
@@ -39,6 +40,8 @@ from catalyst_center_mcp.tool_loader import ToolDefinition
 
 logger = logging.getLogger(__name__)
 
+
+DEVICE_HEALTH_PATH = "/dna/intent/api/v1/device-health"
 
 ClientFactory = Callable[[], CatalystCenterClient]
 ToolFunction = Callable[..., Awaitable[str]]
@@ -278,6 +281,7 @@ def register_tools(
     *,
     client_factory: ClientFactory = _default_client_factory,
 ) -> int:
+    max_age_days = get_settings().device_health_max_age_days
     decorator = CatalystMCPTool(mcp)
     registered = 0
     seen: set[str] = set()
@@ -298,6 +302,15 @@ def register_tools(
             ):
                 raise ToolError("startTime must be less than or equal to endTime.")
 
+            if (
+                max_age_days is not None
+                and payload.method == "GET"
+                and payload.path == DEVICE_HEALTH_PATH
+                and isinstance(end, int)
+                and end < time.time_ns() // 1_000_000 - max_age_days * 86_400_000
+            ):
+                raise ToolError(f"endTime must be within the last {max_age_days} days.")
+
             client = client_factory()
             try:
                 result = cast(object, await client.request(payload))
@@ -314,9 +327,20 @@ def register_tools(
             finally:
                 await client.aclose()
 
+        description = tool.description
+        metadata: dict[str, object] = tool.metadata
+        if (
+            max_age_days is not None
+            and metadata.get("method") == "GET"
+            and (metadata.get("uri") or metadata.get("path")) == DEVICE_HEALTH_PATH
+        ):
+            description += (
+                f" When supplied, endTime must be within the last {max_age_days} days."
+            )
+
         _ = decorator.tool(
             name=tool.name,
-            description=tool.description,
+            description=description,
             input_schema=tool.parameters,
             metadata=tool.metadata,
         )(execute_tool)

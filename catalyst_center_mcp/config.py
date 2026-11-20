@@ -17,11 +17,10 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Mapping
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import Mapping
 from urllib.parse import urlparse
-
 
 DEFAULT_AUTH_PATH = "/dna/system/api/v1/auth/token"
 
@@ -64,6 +63,7 @@ class Settings:
     timeout_seconds: float = 30.0
     auth_path: str = DEFAULT_AUTH_PATH
     bundled_tools_dir: str | None = None
+    device_health_max_age_days: int | None = None
 
     @classmethod
     def from_env(
@@ -71,7 +71,7 @@ class Settings:
         environ: Mapping[str, str] | None = None,
         *,
         require_credentials: bool = True,
-    ) -> "Settings":
+    ) -> Settings:
         env = os.environ if environ is None else environ
         host = env.get("CATALYST_CENTER_HOST") or env.get("CATALYST_CENTER_IP") or ""
         username = env.get("CATALYST_CENTER_USERNAME", "")
@@ -98,6 +98,18 @@ class Settings:
         if not auth_path.startswith("/"):
             auth_path = f"/{auth_path}"
 
+        max_age_key = "CATALYST_CENTER_DEVICE_HEALTH_MAX_AGE_DAYS"
+        max_age_days = None
+        if (max_age := env.get(max_age_key)) is not None:
+            try:
+                max_age_days = int(max_age)
+            except ValueError:
+                raise SettingsError(
+                    f"{max_age_key} must be a positive integer"
+                ) from None
+            if max_age_days < 1:
+                raise SettingsError(f"{max_age_key} must be a positive integer")
+
         return cls(
             base_url=base_url,
             username=username,
@@ -106,6 +118,7 @@ class Settings:
             timeout_seconds=timeout,
             auth_path=auth_path,
             bundled_tools_dir=env.get("CATALYST_CENTER_BUNDLED_TOOLS_DIR"),
+            device_health_max_age_days=max_age_days,
         )
 
     def validate_credentials(self) -> None:

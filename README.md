@@ -52,6 +52,14 @@ fractional values. A numeric query window with both `startTime` and `endTime`
 requires `startTime <= endTime`. Device Health takes integer UTC epoch
 milliseconds for both time parameters.
 
+### Device Health time window
+
+If your controller enforces a maximum age for Device Health `endTime`, set
+`CATALYST_CENTER_DEVICE_HEALTH_MAX_AGE_DAYS` to that positive whole number
+of days. The MCP tool advertises the configured limit and rejects older
+timestamps before contacting the controller. Leave the variable unset to
+let the controller apply its own policy.
+
 ### Assurance issue pagination
 
 Use `api_readIssues` to read Assurance issues on Catalyst Center 3.2.3.
